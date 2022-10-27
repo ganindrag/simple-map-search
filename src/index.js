@@ -3,14 +3,28 @@ import ReactDOM from 'react-dom/client'
 import './index.css'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
-import { Wrapper as MapsWrapper } from '@googlemaps/react-wrapper'
+import { Provider } from 'react-redux'
+import { configureStore } from '@reduxjs/toolkit'
+import { createEpicMiddleware } from 'redux-observable'
+import epics, { reducer } from './epics'
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
+
+const epicMiddleware = createEpicMiddleware()
+
+const store = configureStore({
+	reducer,
+	middleware: [epicMiddleware],
+	devTools: true,
+})
+
+epicMiddleware.run(epics)
+
 root.render(
 	<React.StrictMode>
-		<MapsWrapper apiKey={process.env.REACT_APP_GoogleAPIKey} libraries={['places']}>
+		<Provider store={store}>
 			<App />
-		</MapsWrapper>
+		</Provider>
 	</React.StrictMode>,
 )
 

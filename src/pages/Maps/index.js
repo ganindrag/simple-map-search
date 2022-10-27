@@ -1,31 +1,37 @@
-import React, { useRef, useEffect, useState } from 'react'
-import SearchCard from 'components/SearchCard'
-import RecentSearchCard from 'components/RecentSearchCard'
+import React, { useRef, useEffect } from 'react'
+import googlemapsWrapper from 'hocs/googlemapsWrapper'
+import SearchWidget from 'components/SearchWidget'
+import RecentSearchWidget from 'components/RecentSearchWidget'
+import { useDispatch } from 'react-redux'
+import { mapsActions } from 'epics/mapsReducer'
 
 const Maps = () => {
-	const divMapRef = useRef()
-	const cardsRef = useRef()
-	const [mapInstance, setMapInstance] = useState()
+	const mapContainerRef = useRef()
+	const controlsRef = useRef()
+	const dispatch = useDispatch()
 
 	useEffect(() => {
-		const map = new window.google.maps.Map(divMapRef.current, {
+		const map = new window.google.maps.Map(mapContainerRef.current, {
 			center: { lat: -7.472613, lng: 112.667542 },
 			zoom: 13,
 			disableDefaultUI: true,
 		})
-		setMapInstance(map)
-		map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(cardsRef.current)
-	}, [])
+		dispatch({
+			type: mapsActions.SET_STATE,
+			payload: { mapInstance: map },
+		})
+		map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(controlsRef.current)
+	}, [dispatch])
 
 	return (
 		<>
-			<div style={{ padding: 10, width: 400 }} ref={cardsRef}>
-				<SearchCard mapInstance={mapInstance} />
-				<RecentSearchCard />
+			<div style={{ padding: 10, width: 400 }} ref={controlsRef}>
+				<SearchWidget />
+				<RecentSearchWidget />
 			</div>
-			<div ref={divMapRef} id="map" style={{ width: '100vw', height: '100vh' }}></div>
+			<div ref={mapContainerRef} id="map" style={{ width: '100vw', height: '100vh' }}></div>
 		</>
 	)
 }
 
-export default Maps
+export default googlemapsWrapper(Maps)
